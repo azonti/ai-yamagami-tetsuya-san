@@ -60,12 +60,10 @@ if __name__ == "__main__":
         input_ids = model_input["input_ids"]
         assert isinstance(input_ids, torch.Tensor)
         input_ids = input_ids[0]
-        input_ids.to(device)
 
         attention_mask = model_input["attention_mask"]
         assert isinstance(attention_mask, torch.Tensor)
         attention_mask = attention_mask[0]
-        attention_mask.to(device)
 
         return input_ids, attention_mask
 
@@ -96,6 +94,9 @@ if __name__ == "__main__":
     for epoch in range(args.num_epochs):
         model.train()
         for batch, (input_ids, attention_mask) in enumerate(train_dataloader):
+            input_ids.to(device)
+            attention_mask.to(device)
+
             model_output = model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,

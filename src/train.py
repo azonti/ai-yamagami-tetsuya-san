@@ -28,16 +28,22 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+
     tokenizer = AutoTokenizer.from_pretrained(
         "../pretrained",
         trust_remote_code=True,
     )
-    tokenizer.pad_token = tokenizer.eos_token
     assert isinstance(tokenizer, PreTrainedTokenizer)
+    tokenizer.pad_token = tokenizer.eos_token
     model = GPT2LMHeadModel.from_pretrained(
         "../pretrained",
     )
     assert isinstance(model, GPT2LMHeadModel)
+    model.to(device)
     config = model.config
     assert isinstance(config, GPT2Config)
 
@@ -54,10 +60,12 @@ if __name__ == "__main__":
         input_ids = model_input["input_ids"]
         assert isinstance(input_ids, torch.Tensor)
         input_ids = input_ids[0]
+        input_ids.to(device)
 
         attention_mask = model_input["attention_mask"]
         assert isinstance(attention_mask, torch.Tensor)
         attention_mask = attention_mask[0]
+        attention_mask.to(device)
 
         return input_ids, attention_mask
 
@@ -93,27 +101,25 @@ if __name__ == "__main__":
                 attention_mask=attention_mask,
                 labels=input_ids
             )
-
             model_output.loss.backward()
             optimizer.step()
             optimizer.zero_grad()
-
             if batch % 100 == 99:
                 print(f"Train Loss: {model_output.loss:>7f}")
             pbar.update(1)
 
-        losses = torch.empty(0, dtype=torch.float64)
         model.eval()
         with torch.no_grad():
+            losses = torch.empty(0, dtype=torch.float64)
+            losses.to(device)
             for input_ids, attention_mask in validate_dataloader:
                 model_output = model(
                     input_ids=input_ids,
                     attention_mask=attention_mask,
                     labels=input_ids
                 )
-
                 losses = torch.cat((losses, model_output.loss), dim=0)
-        print(f"Validate Loss: {losses.mean():>7f}")
+            print(f"Validate Loss: {losses.mean():>7f}")
 
         if not os.path.exists(f"../finetuned/epoch{epoch}"):
             os.makedirs(f"../finetuned/epoch{epoch}")

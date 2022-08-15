@@ -22,7 +22,7 @@ class TweetDataset(Dataset, Generic[T]):
         self.transform = transform
 
         with open(html_path, encoding="utf-8") as f:
-            soup = BeautifulSoup(f.read())
+            soup = BeautifulSoup(f.read(), features="html.parser")
 
         lis = soup.find_all("li")
         for li in lis:

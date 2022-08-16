@@ -93,6 +93,8 @@ if __name__ == "__main__":
 
     pbar = tqdm(total=args.num_epochs*len(train_dataloader))
     for epoch in range(args.num_epochs):
+        losses = torch.empty(0, dtype=torch.float64)
+        losses = losses.to(device)
         model.train()
         for batch, (input_ids, attention_mask) in enumerate(train_dataloader):
             model_output = model(
@@ -103,14 +105,18 @@ if __name__ == "__main__":
             model_output.loss.backward()
             optimizer.step()
             optimizer.zero_grad()
-            if batch % 100 == 99:
-                print(f"Train Loss: {model_output.loss:>7f}")
+            if batch % 100 != 99:
+                losses = torch.cat((losses, model_output.loss), dim=0)
+            else:
+                print(f"Train Loss: {losses.mean():>7f}")
+                losses = torch.empty(0, dtype=torch.float64)
+                losses = losses.to(device)
             pbar.update(1)
 
+        losses = torch.empty(0, dtype=torch.float64)
+        losses.to(device)
         model.eval()
         with torch.no_grad():
-            losses = torch.empty(0, dtype=torch.float64)
-            losses.to(device)
             for input_ids, attention_mask in validate_dataloader:
                 model_output = model(
                     input_ids=input_ids,

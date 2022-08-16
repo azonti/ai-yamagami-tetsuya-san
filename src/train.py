@@ -93,8 +93,7 @@ if __name__ == "__main__":
 
     pbar = tqdm(total=args.num_epochs*len(train_dataloader))
     for epoch in range(args.num_epochs):
-        losses = torch.empty(0, dtype=torch.float64)
-        losses = losses.to(device)
+        sum_loss = 0.0
         model.train()
         for batch, (input_ids, attention_mask) in enumerate(train_dataloader):
             model_output = model(
@@ -106,15 +105,13 @@ if __name__ == "__main__":
             optimizer.step()
             optimizer.zero_grad()
             if batch % 100 != 99:
-                losses = torch.cat((losses, model_output.loss), dim=0)
+                sum_loss += model_output.loss.item()
             else:
-                print(f"Train Loss: {losses.mean():>7f}")
-                losses = torch.empty(0, dtype=torch.float64)
-                losses = losses.to(device)
+                print(f"Train Loss: {sum_loss/100:>7f}")
+                sum_loss = 0.0
             pbar.update(1)
 
-        losses = torch.empty(0, dtype=torch.float64)
-        losses.to(device)
+        sum_loss = 0.0
         model.eval()
         with torch.no_grad():
             for input_ids, attention_mask in validate_dataloader:
@@ -123,8 +120,8 @@ if __name__ == "__main__":
                     attention_mask=attention_mask,
                     labels=input_ids
                 )
-                losses = torch.cat((losses, model_output.loss), dim=0)
-            print(f"Validate Loss: {losses.mean():>7f}")
+                sum_loss += model_output.loss.item()
+            print(f"Validate Loss: {sum_loss/len(validate_dataloader):>7f}")
 
         if not os.path.exists(f"../finetuned/epoch{epoch}"):
             os.makedirs(f"../finetuned/epoch{epoch}")

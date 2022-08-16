@@ -126,6 +126,4 @@ if __name__ == "__main__":
         if not os.path.exists(f"../finetuned/epoch{epoch}"):
             os.makedirs(f"../finetuned/epoch{epoch}")
 
-        tokenizer.save_pretrained(f"../finetuned/epoch{epoch}")
-        tokenizer.save_vocabulary(f"../finetuned/epoch{epoch}")
         model.save_pretrained(f"../finetuned/epoch{epoch}")

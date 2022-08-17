@@ -59,12 +59,15 @@ if __name__ == "__main__":
     )
     assert isinstance(model, GPT2LMHeadModel)
 
-    text = generate(tokenizer, model, tokenizer.bos_token)
-    text = text.replace(tokenizer.bos_token, "")
-    text = text.replace(tokenizer.eos_token, "")
-    text = text.replace("<EMAIL>", "")
-    text = text.replace("<URL>", "")
-    text = text.strip()
+    while True:
+        text = generate(tokenizer, model, tokenizer.bos_token)
+        text = text.replace(tokenizer.bos_token, "")
+        text = text.replace(tokenizer.eos_token, "")
+        text = text.replace("<EMAIL>", "")
+        text = text.replace("<URL>", "")
+        text = text.strip()
+        if text != "":
+            break
 
     with open("../tokens.json", encoding="utf-8") as f:
         tokens = json.loads(f.read())

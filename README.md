@@ -41,7 +41,7 @@ python -m tweet
 popd
 ```
 
-## My Finetuning Report
+## My finetuning report
 
 I finetuned [tanreinama](https://github.com/tanreinama)'s Japanese GPT-2 (medium) model.
 

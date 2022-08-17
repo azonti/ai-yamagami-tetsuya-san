@@ -7,6 +7,8 @@ from transformers import (
     GPT2LMHeadModel,
 )
 
+from twitter_text import parse_tweet
+
 
 def generate(
     tokenizer: PreTrainedTokenizer,
@@ -66,7 +68,8 @@ if __name__ == "__main__":
         text = text.replace("<EMAIL>", "")
         text = text.replace("<URL>", "")
         text = text.strip()
-        if text != "":
+        length = parse_tweet(text).weightedLength
+        if 40 <= length <= 280:
             break
 
     with open("../tokens.json", encoding="utf-8") as f:

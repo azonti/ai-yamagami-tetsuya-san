@@ -11,7 +11,12 @@ if __name__ == "__main__":
         client_id=credentials["client_id"],
         client_secret=credentials["client_secret"],
         redirect_uri="https://localhost",
-        scope=["tweet.write", "offline.access"],
+        scope=[
+            "users.read",
+            "tweet.read",
+            "tweet.write",
+            "offline.access",
+        ],
     )
     tokens = oauth2_user_handler.refresh_token(
         "https://api.twitter.com/2/oauth2/token",

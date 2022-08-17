@@ -40,3 +40,9 @@ pushd src
 python -m tweet
 popd
 ```
+
+## My Finetuning Report
+
+I finetuned [tanreinama](https://github.com/tanreinama)'s Japanese GPT-2 (medium) model.
+
+![](report/report.png)
